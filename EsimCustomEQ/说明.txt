@@ -1,0 +1,10 @@
+安装方法：解压后将EsimCustomEQ文件夹直接拖放进chrome的扩展程序里
+
+修改方式：自行修改文件夹下的equipmentSprite.png，不要用画图修改，否则会丢失透明度
+这里已经给出了一个示例：修改了Q6装备的背景颜色
+原图地址：http://cdn.e-sim.org//img/equipmentIcons/equipmentSprite4.png
+
+
+备注：xix服使用不同的图像
+http://cdn.e-sim.org//img/equipmentIcons/equipmentSprite5.png
+请自行修改和替换

@@ -1,0 +1,16 @@
+﻿{
+"manifest_version": 2,
+"name": "自定义esim装扮",
+"version": "0.1",
+"description": "将e-sim网站的equipmentSprite4.png文件替换为本地文件equipmentSprite.png。通过修改本地装备图片来实现自定义装扮的功能。(=ﾟωﾟ)=",
+"icons": {
+    "32": "img/icon-32.png",
+    "48": "img/icon-48.png"
+},
+"permissions": ["webRequest","webRequestBlocking", "*://*.e-sim.org/*"],
+"browser_action": {"default_icon": "img/icon-32.png", "default_title": "自定义esim装扮"},
+"background": {
+    "scripts": ["background.js"]
+},
+"web_accessible_resources": ["equipmentSprite.png"]
+}

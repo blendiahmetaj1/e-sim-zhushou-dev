@@ -1,0 +1,48 @@
+﻿{
+"manifest_version": 2,
+"name": "esim 助推器",
+"version": "0.6",
+"description": "将e-sim网站的部分css、js和png文件替换为本地文件，以加快网页打开速度。esim网站更新可能会导致本扩展失效(=ﾟωﾟ)=",
+"icons": {
+    "48": "icon/icon-48.png"
+},
+"permissions": ["webRequest","webRequestBlocking", "*://*.e-sim.org/*"],
+"browser_action": {"default_icon": "icon/icon-48.png", "default_title": "esim 临时助推器"},
+"background": {
+    "scripts": ["background.js"]
+},
+"web_accessible_resources": [
+"cdn/css/esim-style.css",
+"cdn/css/fight.css",
+"cdn/css/jquery-ui-1.9.2.custom.min.css",
+"cdn/css/laurels.css",
+"cdn/css/images/ui-icons_469bdd_256x240.png",
+"cdn/FlagsPackage/CSS/BIG/flagsStyle.css",
+"cdn/FlagsPackage/CSS/MEDIUM/flagsStyle.css",
+"cdn/FlagsPackage/CSS/SMALL/flagsStyle.css",
+"cdn/FlagsPackage/SPRITES/BIG/flagsSprite.png",
+"cdn/FlagsPackage/SPRITES/MEDIUM/flagsSprite.png",
+"cdn/FlagsPackage/SPRITES/SMALL/flagsSprite.png",
+"cdn2/FlagsPackage/SPRITES/BIG/flagsSprite.png",
+"cdn2/FlagsPackage/SPRITES/MEDIUM/flagsSprite.png",
+"cdn2/FlagsPackage/SPRITES/SMALL/flagsSprite.png",
+"cdn/img/flags-medium-6.png",
+"cdn2/img/flags-medium-6.png",
+"cdn2/img/flags-big-6.png",
+"cdn/img/equipmentIcons/equipmentSprite4.png",
+"cdn/img/equipmentIcons/equipmentSprite5.png",
+"cdn/js/dragresize.js",
+"cdn/js/foundation.min.js",
+"cdn/js/jquery.countdown2.js",
+"cdn/js/jquery.plugin.js",
+"cdn/js/jquery.validate.js",
+"cdn/js/jquery-1.8.3.min.js",
+"cdn/js/jquery-ui.min.js",
+"cdn/js/miniscroll.min.js",
+"cdn/js/script-min.js",
+"cdn/js/foundation/custom.modernizr.js",
+"cdn/font/opensans-bold-webfont.ttf",
+"cdn/font/opensans-light-webfont.ttf",
+"cdn/font/opensans-regular-webfont.ttf"
+]
+}

@@ -1,0 +1,68 @@
+// ==UserScript==
+// @name         BattleMonitor
+// @version      1.0.1
+// @description  [e-sim] Battle monitor for non premium accounts
+// @author       Dzejkob
+// @match        *.e-sim.org/battle.html*
+// @grant        none
+// ==/UserScript==
+function addDomElements() {
+    var a = '<div class="foundation-style small-10 columns battleMonitorDiv"></div>',
+    b = $(a),
+    c = $('<div class="foundation-style small-5 columns"><b>Total defenders online:</b> <i id="totaldefenders" style="display: inline;">0</i> <a style="font-size: 11px; display: inline;" href="" id="defendersLink">Show details</a><a style="font-size: 11px; display: none;" href="" id="defendersLinkHide">Hide details</a><br><div align="center" id="defendersMenu" style="font-size: 11px; text-align: center; padding: 1em; margin: auto; display: none;">No one <br></div></div>'),
+    d = $('<div class="foundation-style small-5 columns"><b>Total attackers online:</b> <i id="totalattackers">0</i> <a style="font-size: 11px" href="" id="attackersLink">Show details</a> <a style="font-size: 11px; display: none" href="" id="attackersLinkHide">Hide details</a><br><div align="center" id="attackersMenu" style="display: none; font-size: 11px; text-align: center; padding: 1em; margin: auto;">No one <br></div></div>'),
+    e = $(a),
+    f = $('<b>Total spectators online:</b> <i id="totalspectators">0</i> <a style="font-size: 11px" href="" id="spectatorsLink">Show details</a> <a style="font-size: 11px; display: none" href="" id="spectatorsLinkHide">Hide details</a> <br><div align="center" id="spectatorsMenu" style="display: none; font-size: 11px; text-align: center; padding: 1em; margin: auto;"><br></div>');
+    b.append(c),
+    b.append(d),
+    e.append(f),
+    $("#battleStats").append(b),
+    $("#battleStats").append(e)
+}
+$(document).ready(function() {
+    null === document.getElementById("spectatorsLink") && ($("#morePremiumFeature").remove(), $.ajaxPrefilter(function(a, b, c) {
+        a && a.url && a.url.indexOf("battleScore") !== -1 && (a.url += "?premium=1")
+    }), addDomElements(), sendUpdateRequest(), $("#attackersLink").click(function() {
+        return $("#attackersLink").fadeOut("fast",
+        function() {
+            $("#attackersLinkHide").fadeIn("fast"),
+            $("#attackersMenu").fadeIn("fast")
+        }),
+        !1
+    }), $("#attackersLinkHide").click(function() {
+        return $("#attackersLinkHide").fadeOut("fast",
+        function() {
+            $("#attackersLink").fadeIn("fast"),
+            $("#attackersMenu").fadeOut("fast")
+        }),
+        !1
+    }), $("#defendersLink").click(function() {
+        return $("#defendersLink").fadeOut("fast",
+        function() {
+            $("#defendersLinkHide").fadeIn("fast"),
+            $("#defendersMenu").fadeIn("fast")
+        }),
+        !1
+    }), $("#defendersLinkHide").click(function() {
+        return $("#defendersLinkHide").fadeOut("fast",
+        function() {
+            $("#defendersLink").fadeIn("fast"),
+            $("#defendersMenu").fadeOut("fast")
+        }),
+        !1
+    }), $("#spectatorsLink").click(function() {
+        return $("#spectatorsLink").fadeOut("fast",
+        function() {
+            $("#spectatorsLinkHide").fadeIn("fast"),
+            $("#spectatorsMenu").fadeIn("fast")
+        }),
+        !1
+    }), $("#spectatorsLinkHide").click(function() {
+        return $("#spectatorsLinkHide").fadeOut("fast",
+        function() {
+            $("#spectatorsLink").fadeIn("fast"),
+            $("#spectatorsMenu").fadeOut("fast")
+        }),
+        !1
+    }))
+});

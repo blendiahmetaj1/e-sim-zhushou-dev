@@ -1,0 +1,16 @@
+废话不多说，直接上图
+平均伤害计算公式用的是训练页面的计算公式，爆发和总伤是带装备与无装备伤害之比，爆发不考虑免体。
+文档发在群里了，没有的可以在QQ上跟我要
+如果对公式和结果有疑问或异议，欢迎留言讨论
+
+[center]爆发力[/center]
+[img]http://puu.sh/zqZpe/21a0824514.png[/img]
+
+[center]总伤害[/center]
+[img]http://puu.sh/zqZqT/41695bc22a.png[/img]
+
+[center]无miss爆发力[/center]
+[img]http://puu.sh/zqZqG/d5f6d9fdf6.png[/img]
+
+[center]无miss总伤害[/center]
+[img]http://puu.sh/zqZr5/0f28728b01.png[/img]

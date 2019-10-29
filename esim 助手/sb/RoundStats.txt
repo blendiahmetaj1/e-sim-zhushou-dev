@@ -1,0 +1,212 @@
+﻿// ==UserScript==
+// @name         RoundStats
+// @version      1.1.2
+// @description  [e-sim] Extended round statistics
+// @author       Dzejkob
+// @match        *.e-sim.org/battle.html*
+// @grant        GM_addStyle
+// ==/UserScript==
+
+function addDomElements() {
+	var e = $('<div id="extended-stats-container"></div>').css({
+		margin: ".8em",
+		padding: ".5em",
+		display: "none"
+	}),
+		a = $('[href*="battleUnitsStats.html"]')[0],
+		t = $('<a id="extended-stats-link" href="javascript:void(0);" style="font-weight: bold">Show extended round stats</a>');
+	$(t).insertAfter(a), $("<br>").insertAfter(a), $(e).insertAfter($('[class="foundation-radius fightContainer foundation-base-font"]')[5])
+}
+function getRound() {
+	var e = $("span.fightFont");
+	return e && e.text().replace(/\D+/g, "")
+}
+function sendStatsRequest() {
+	var e = getRound(),
+		a = {
+			battleId: getParameterByName("id", location.href),
+			roundId: e
+		};
+	$.ajax({
+		type: "GET",
+		url: "apiFights.html",
+		data: a,
+		async: !0,
+		success: statsRequestSuccess,
+		failure: statsRequestFailure
+	})
+}
+function getParameterByName(e, a) {
+	a || (a = window.location.href), e = e.replace(/[\[\]]/g, "\\$&");
+	var t = new RegExp("[?&]" + e + "(=([^&#]*)|&|#|$)").exec(a);
+	return t ? t[2] ? decodeURIComponent(t[2].replace(/\+/g, " ")) : "" : null
+}
+function statsRequestFailure() {}
+function statsRequestSuccess(e) {
+	printStatsTable(generateDataFromResponse(e)), $(".sort").click(function() {
+		sortHandler(this)
+	}), populateTable()
+}
+function generateDataFromResponse(e) {
+	for (var a = JSON.parse(e), t = {}, n = 0; n < a.length; n++) {
+		void 0 === t[a[n].citizenId] && (t[a[n].citizenId] = {
+			defenderSide: {
+				damage: 0,
+				weapon: {
+					0: 0,
+					1: 0,
+					2: 0,
+					3: 0,
+					4: 0,
+					5: 0
+				}
+			},
+			attackerSide: {
+				damage: 0,
+				weapon: {
+					0: 0,
+					1: 0,
+					2: 0,
+					3: 0,
+					4: 0,
+					5: 0
+				}
+			},
+			militaryUnit: a[n].militaryUnit
+		});
+		var r = a[n].defenderSide ? "defenderSide" : "attackerSide";
+		t[a[n].citizenId][r].damage += a[n].damage, t[a[n].citizenId][r].weapon[a[n].weapon] += a[n].berserk ? 5 : 1
+	}
+	return t
+}
+function printStatsTable(e) {
+	var a = $("<table>").css({
+		width: "100%",
+		"border-collapse": "collapse"
+	}),
+		t = $("<tr>"),
+		n = $("<td>").addClass("statisticsTable").css({
+			"vertical-align": "top"
+		}),
+		r = $("<td>").addClass("statisticsTable").css({
+			"vertical-align": "top"
+		}),
+		s = {
+			width: "100%",
+			"border-collapse": "collapse",
+			border: "1px solid white"
+		},
+		o = $("<table>").append(retrieveHeader()).css($.extend({
+			"padding-right": "15px"
+		}, s)),
+		d = $("<table>").append(retrieveHeader()).css($.extend({
+			"padding-left": "15px"
+		}, s));
+	$("<th>");
+	t.append(n), t.append(r), a.append(t), n.append(o), r.append(d);
+	for (var i in e) if (e.hasOwnProperty(i)) {
+		var l = e[i].defenderSide,
+			p = e[i].attackerSide;
+		if (p.damage > 0) {
+			var c = retrieveRow(p, i);
+			d.append(c)
+		}
+		if (l.damage > 0) {
+			var f = retrieveRow(l, i);
+			o.append(f)
+		}
+	}
+	var u = $("#extended-stats-container");
+	u.empty(), u.append(a), sortTable(d[0], 1), sortTable(o[0], 1)
+}
+function retrieveHeader() {
+	var e = "<th>",
+		a = $("<thead>"),
+		t = $("<tr>"),
+		n = $("<tr>");
+	t.append($(e).addClass("sort").append("Citizen")).append($(e).addClass("sort sort-desc").append("damage")).append($(e).attr("colspan", 6).append("weapon")), n.append($(e).attr("colspan", 2));
+	for (var r = 0; r < 6; r++) n.append($(e).addClass("sort").append("Q" + r));
+	return a.append(t).append(n), a
+}
+function retrieveRow(e, a) {
+	var t = "<td>",
+		n = $("<tr>");
+	return n.append($(t).addClass("citizen-id").append(a)), n.append($(t).append(parseInt(e.damage).toLocaleString().replaceAll(" ", ","))), n.append($(t).append(e.weapon[0])), n.append($(t).append(e.weapon[1])), n.append($(t).append(e.weapon[2])), n.append($(t).append(e.weapon[3])), n.append($(t).append(e.weapon[4])), n.append($(t).append(e.weapon[5])), n
+}
+function isRoundClosed() {
+	return "00:00:00" == $(".countdown-row.countdown-amount").text()
+}
+function sortTable(e, a, t) {
+	var n = e.tBodies[0],
+		r = [];
+	if (n) {
+		for (var s = 0, o = n.rows.length; s < o; s++) {
+			var d = n.rows[s],
+				i = d.cells[a].textContent.replaceAll(",", "") || d.cells[a].innerText.replaceAll(",", ""),
+				l = d.cells[0].textContent.replaceAll(",", "") || d.cells[0].innerText.replaceAll(",", "");
+			r.push([l, i, d])
+		}
+		r.sort(function(e, a) {
+			return isNaN(parseFloat(e[1])) || isNaN(parseFloat(a[1])) ? t ? 0 !== e[1].localeCompare(a[1]) ? e[1].localeCompare(a[1]) : e[0].localeCompare(a[0]) : 0 !== a[1].localeCompare(e[1]) ? a[1].localeCompare(e[1]) : a[0].localeCompare(e[0]) : t ? parseFloat(e[1]) - parseFloat(a[1]) != 0 ? parseFloat(e[1]) - parseFloat(a[1]) : e[0].localeCompare(a[0]) : parseFloat(a[1]) - parseFloat(e[1]) != 0 ? parseFloat(a[1]) - parseFloat(e[1]) : a[0].localeCompare(e[0])
+		});
+		for (var s = 0, o = r.length; s < o; s++) n.appendChild(r[s][2]);
+		r = null
+	}
+}
+function sortHandler(e) {
+	var a = $(e).closest("table")[0],
+		t = $(e).getNonColSpanIndex();
+	$(e).hasClass("sort-desc") ? ($(e).removeClass("sort-desc"), $(e).addClass("sort-asc"), sortTable(a, t, !0)) : ($(e).removeClass("sort-asc"), $(e).addClass("sort-desc"), sortTable(a, t));
+	for (var n = $(a).find(".sort"), r = 0; r < n.length; r++) $(n[r]).getNonColSpanIndex() !== t && $(n[r]).removeClass("sort-desc").removeClass("sort-asc")
+}
+function populateTable() {
+	var e = 0,
+		a = $(".citizen-id");
+	if (0 !== a.length) var t = setInterval(function() {
+		isLocked = !0;
+		var n = a[e++],
+			r = {
+				id: $(n).text()
+			};
+		$.ajax({
+			type: "GET",
+			url: "apiCitizenById.html",
+			data: r,
+			async: !0,
+			success: function(e) {
+				var a = JSON.parse(e);
+				if (!a.error) {
+					var t = a.login;
+					t = t.length > 10 ? t.trunc(10) : t;
+					var r = a.id;
+					$(n).empty(), $(n).append('<a href="profile.html?id=' + r + '" target="_blank">' + t + "</a>")
+				}
+			},
+			failure: function() {}
+		}), a.length === e && (isLocked = !1, clearInterval(t))
+	}, 300)
+}
+GM_addStyle(".sort-desc:after{content:'\\ffec';}.sort-asc:after{content:'\\ffea';}.statisticsTable{margin:10px auto 20px;max-width:96%;font-size:12px;border-collapse:collapse}.statisticsTable TD{padding:4px 2px;border:1px solid #fff}.statisticsTable thead{color:#f2f2f2;font-size:1.2em;font-weight:600;background-color:rgba(0,0,0,.4)}.statisticsTable thead TH{line-height:2em}.statisticsTable tbody>TR:nth-child(odd){color:#080808;font-weight:400;background-color:rgba(255,255,255,.8)}.statisticsTable tbody>TR:nth-child(even){color:#080808;font-weight:400;background-color:rgba(255,255,255,.9)}.statisticsTable .avatar{border:1px solid rgba(10,10,10,.4);border-radius:2px;float:left;height:48px;margin:3px;width:48px}.statisticsTable tbody>TR:hover{background-color:#c2f2f2}");
+var isLocked = !1;
+$(document).ready(function() {
+	addDomElements();
+	var e = !1;
+	$("#extended-stats-link").click(function() {
+		var a = $("#extended-stats-container");
+		a.is(":visible") ? a.css("display", "none") : (a.css("display", "block"), e || isLocked || (sendStatsRequest(), e = isRoundClosed()))
+	})
+}), $.fn.getNonColSpanIndex = function() {
+	if (!$(this).is("td") && !$(this).is("th")) return -1;
+	var e = this.parent("tr").children(),
+		a = e.index(this),
+		t = 0;
+	return e.each(function(e, n) {
+		if (e == a) return !1;
+		var r = $(this).attr("colspan");
+		r = r ? parseInt(r) : 1, t += r
+	}), t
+}, String.prototype.replaceAll = function(e, a) {
+	return this.replace(new RegExp(e, "g"), a)
+}, String.prototype.trunc = function(e) {
+	return this.length > e ? this.substr(0, e - 1) + "..." : this
+};

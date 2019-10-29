@@ -1,0 +1,113 @@
+// ==UserScript==
+// @name         MotivateSearchTool
+// @version      1.0.2
+// @description  [e-sim] A simple tool for searching players to motivate.
+// @author       Dzejkob
+// @match        *.e-sim.org/statistics.html?selectedSite=NEW_CITIZEN*
+// @grant        none
+// ==/UserScript==
+function addDomElements() {
+    var a = $('[class*="statisticsTable"] tr')[0],
+    b = $("td", a),
+    c = b[0].innerHTML,
+    d = b[1].innerHTML,
+    e = b[7].innerHTML,
+    f = b[4].innerHTML,
+    g = b[5].innerHTML,
+    h = b[6].innerHTML,
+    i = $('<div class="foundation-radius fightContainer foundation-base-font"></div>');
+    i.append('<span class="white-comment" style="font-size: 11px;">Search players to motivate.</span><br><input type="button" id="search-tool-search-btn" value="Search" style="margin-top: 5px"><br>'),
+    i.append('<img src="http://i.imgur.com/5ZVzPNa.gif" id="loadingGif" style="display: none; margin: auto; padding: 10px 0;">'),
+    i.append('<span class="white-comment" style="font-size: 11px;">* This table shows citizens that registered within last 5 days.</span>');
+    var j = $('<table align="center" style="width: 500px;" id="search-tool-table" class="statisticsTable"></table>');
+    j.append("<tr><td>" + c + "</td><td>" + d + "</td><td>" + f + "</td><td>" + g + "</td><td>" + h + "</td><td>" + e + "</td></tr>"),
+    i.append(j),
+    $(i).insertAfter($('[class="foundation-radius fightContainer foundation-base-font"]')[0])
+}
+function searchMotivate() {
+    document.title = "(" + playersFound + ") " + title,
+    aTimer = setInterval(function() {
+        getPlayerInfo(playerId--)
+    },
+    800)
+}
+function getLatestPlayerId() {
+    var a;
+    $.ajax({
+        type: "GET",
+        dataType: "html",
+        async: !1,
+        url: "/newCitizens.html?countryId=0",
+        success: function(b) {
+            a = b
+        }
+    });
+    var b = $.parseHTML(a),
+    c = $("[class*='dataTable'] tr", b);
+    c = c.slice(1, c.length);
+    var d = $("td", c[0]),
+    e = parseInt($("a", d[0]).attr("href").replace("profile.html?id=", ""));
+    return e
+}
+function getPlayerInfo(a) {
+    $.ajax({
+        type: "GET",
+        dataType: "html",
+        async: !0,
+        url: "/profile.html?id=" + a,
+        success: function(b) {
+            var c = {},
+            d = b,
+            e = $.parseHTML(d);
+            if ("undefined" != typeof $("#motivateCitizenButton", e)[0]) {
+                var f = $('[class="testDivblue"] h2', e)[0].innerText;
+                f = f.split(/\s/),
+                f = f.slice(1, f.length);
+                var g = "";
+                for (i = 0; i < f.length; i++) g += f[i] + " ";
+                g = g.trim();
+                var h = $("div", $('[class="smallTableFont"] tr b', e)[13]).attr("class").replace("flags-small ", "").trim(),
+                j = parseInt($('[class="smallTableFont"] tr b', e)[15].innerText.replace("Day ", "")),
+                k = $('[class="bigAvatar"]', e).attr("src");
+                return c.playerId = a,
+                c.name = g,
+                c.citizenship = h,
+                c.isMotivate = !0,
+                c.birthDay = j,
+                c.avatar = k,
+                document.title = "(" + ++playersFound + ") " + title,
+                $("#search-tool-table").append('<tr><td><img align="absmiddle" class="smallAvatar" src="' + c.avatar + '"> <a href="/profile.html?id=' + c.playerId + '" target="_blank" class="profileLink" style="text-shadow: none;">' + c.name + '</a></td><td><div class="flags-small ' + c.citizenship + '"></div><span style="text-shadow: none;"> ' + c.citizenship.replace("-", " ") + '</span></td><td id="search-tool-weapon-icon-' + c.playerId + '">' + positiveIcon + '</td><td id="search-tool-food-icon-' + c.playerId + '">' + positiveIcon + '</td><td id="search-tool-gift-icon-' + c.playerId + '">' + positiveIcon + '</td><td><a href="motivateCitizen.html?id=' + c.playerId + '" class="foundation-style button small" target="blank_"><i class="icon-cupcake"></i></a></td></tr>'),
+                getMotivateinfo(c.playerId),
+                day - c.birthDay > 5 ? ($("#search-tool-search-btn").val("Search"), $("#loadingGif").css("display", "none"), void clearInterval(aTimer)) : void 0
+            }
+        }
+    })
+}
+function getMotivateinfo(a) {
+    $.ajax({
+        type: "GET",
+        dataType: "html",
+        async: !0,
+        url: "/motivateCitizen.html?id=" + a,
+        success: function(b) {
+            for (var c = $(".dataTable img", b), d = 0; d < c.length; d++) {
+                var e = c[d];
+                e.src.indexOf("Weapon") !== -1 && $("#search-tool-weapon-icon-" + a).html(negativeIcon),
+                e.src.indexOf("Food") !== -1 && $("#search-tool-food-icon-" + a).html(negativeIcon),
+                e.src.indexOf("Gift") !== -1 && $("#search-tool-gift-icon-" + a).html(negativeIcon)
+            }
+        }
+    })
+}
+var timer, playersFound = 0,
+playerId = getLatestPlayerId(),
+day = parseInt($('[class="foundation-style panel callout"] b')[2].innerText.split(/\s/)[1]),
+title = document.title,
+negativeIcon = '<i style="color: #c00;font-size: 1.25em; text-shadow: 0 0 0" class="icon-uniF478 "></i>',
+positiveIcon = '<i style="color: #0c0; font-size: 1.25em; text-shadow: 0 0 0" class="icon-uniF479"></i>';
+$(document).ready(function() {
+    addDomElements(),
+    $("#search-tool-search-btn").click(function() {
+        "Search" == $(this).val() ? ($(this).val("Stop"), $("#loadingGif").css("display", "block"), searchMotivate()) : ($(this).val("Search"), $("#loadingGif").css("display", "none"), clearInterval(aTimer))
+    })
+});

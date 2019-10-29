@@ -1,0 +1,152 @@
+// ==UserScript==
+// @name         AutoHealer
+// @version      4.1.2
+// @description  [e-sim] Auto healer (and few more things)
+// @author       Dzejkob
+// @match        *.e-sim.org/battle.html*
+// @grant        none
+// ==/UserScript==
+
+function sendEatRequest() {
+    var a = "quality=" + $("#foodQuality").val();
+    $.ajax({
+        type: "POST",
+        url: "eat.html",
+        data: a,
+        success: function(a) {
+            updateCitizenStatus(a)
+        }
+    })
+}
+function sendGiftRequest() {
+    var a = "quality=" + $("#giftQuality").val();
+    $.ajax({
+        type: "POST",
+        url: "gift.html",
+        data: a,
+        success: function(a) {
+            updateCitizenStatus(a)
+        }
+    })
+}
+function updateCitizenStatus(a) {
+    var b = jQuery.parseJSON(a);
+    $("#foodLimit").html(b.foodLimit),
+    $("#giftLimit").html(b.giftLimit),
+    $("#foodLimit2").html(b.foodLimit),
+    $("#giftLimit2").html(b.giftLimit),
+    $("#wellness").html(b.wellness),
+    $("#healthBar").html(b.wellness),
+    $("#healthProgress .ui-progressbar-value").animate({
+        width: b.wellness + "%"
+    },
+    {
+        queue: !1
+    }),
+    $("#actualHealth").html(b.wellness);
+    var c = $("#consumable"),
+    d = $("#battleSelectable"),
+    e = $("#storage-ammount");
+    c.find("#foodQ1").html("<b>Q1</b><br>" + b.q1FoodStorage),
+    c.find("#foodQ2").html("<b>Q2</b><br>" + b.q2FoodStorage),
+    c.find("#foodQ3").html("<b>Q3</b><br>" + b.q3FoodStorage),
+    c.find("#foodQ4").html("<b>Q4</b><br>" + b.q4FoodStorage),
+    c.find("#foodQ5").html("<b>Q5</b><br>" + b.q5FoodStorage),
+    c.find("#giftQ1").html("<b>Q1</b><br>" + b.q1GiftStorage),
+    c.find("#giftQ2").html("<b>Q2</b><br>" + b.q2GiftStorage),
+    c.find("#giftQ3").html("<b>Q3</b><br>" + b.q3GiftStorage),
+    c.find("#giftQ4").html("<b>Q4</b><br>" + b.q4GiftStorage),
+    c.find("#giftQ5").html("<b>Q5</b><br>" + b.q5GiftStorage),
+    d.find("#sfoodQ1").html("<b>Q1</b><br>" + b.q1FoodStorage),
+    d.find("#sfoodQ2").html("<b>Q2</b><br>" + b.q2FoodStorage),
+    d.find("#sfoodQ3").html("<b>Q3</b><br>" + b.q3FoodStorage),
+    d.find("#sfoodQ4").html("<b>Q4</b><br>" + b.q4FoodStorage),
+    d.find("#sfoodQ5").html("<b>Q5</b><br>" + b.q5FoodStorage),
+    d.find("#sgiftQ1").html("<b>Q1</b><br>" + b.q1GiftStorage),
+    d.find("#sgiftQ2").html("<b>Q2</b><br>" + b.q2GiftStorage),
+    d.find("#sgiftQ3").html("<b>Q3</b><br>" + b.q3GiftStorage),
+    d.find("#sgiftQ4").html("<b>Q4</b><br>" + b.q4GiftStorage),
+    d.find("#sgiftQ5").html("<b>Q5</b><br>" + b.q5GiftStorage),
+    e.find(".Food-1-ammount").text(b.q1FoodStorage),
+    e.find(".Food-2-ammount").text(b.q2FoodStorage),
+    e.find(".Food-3-ammount").text(b.q3FoodStorage),
+    e.find(".Food-4-ammount").text(b.q4FoodStorage),
+    e.find(".Food-5-ammount").text(b.q5FoodStorage),
+    e.find(".Gift-1-ammount").text(b.q1GiftStorage),
+    e.find(".Gift-2-ammount").text(b.q2GiftStorage),
+    e.find(".Gift-3-ammount").text(b.q3GiftStorage),
+    e.find(".Gift-4-ammount").text(b.q4GiftStorage),
+    e.find(".Gift-5-ammount").text(b.q5GiftStorage)
+}
+function addDomElements() {
+    var a = $('<div class="foundation-radius fightContainer foundation-base-font"></div>'),
+    b = $('<input type="checkbox" class="smallerBox" id="autoHealBox" name="autoHealBox" style="margin:1px !important;line-height:10px !important;">'),
+    c = $('<label class="checkboxlabel" for="autoHealBox" style="margin-right: 20px;">Auto-heal</label>'),
+    d = $('<input type="checkbox" class="smallerBox" id="removeMaskBox" name="removeMaskBox" style="margin:1px !important;line-height:10px !important;">'),
+    e = $('<label class="checkboxlabel" for="removeMaskBox" style="margin-right: 20px;">Remove fight window</label>'),
+    f = $('<input type="checkbox" class="smallerBox" id="hideTopTenBox" name="hideTopTenBox" style="margin:1px !important;line-height:10px !important;">'),
+    g = $('<label class="checkboxlabel" for="hideTopTenBox" style="margin-right: 20px;">Hide top-ten</label>'),
+    h = $('<input type="text" id="intervalRefresh" name="intervalRefresh" value="7" style="max-width: 30px;outline: 0px !important; border: 0 !important;">'),
+    i = $('<label class="checkboxlabel" for="intervalRefresh" style="margin-right: 20px;">Battle refresh interval [s]</label>');
+    a.append(d),
+    a.append(e),
+    a.append(b),
+    a.append(c),
+    a.append(f),
+    a.append(g),
+    a.append(h),
+    a.append(i),
+    $(a).insertAfter($('[class="foundation-radius fightContainer foundation-base-font"]')[1]),
+    $("#intervalRefresh").spinner({
+        min: 2,
+        max: 10,
+        spin: function(a, b) {
+            updateRereshInterval(b.value)
+        }
+    }),
+    $("#intervalRefresh").prop("disabled", !0)
+}
+function toggleTopTen(a) {
+    var b = $(".foundation-style.small-10.columns")[5];
+    a ? $(b).css("display", "none") : $(b).css("display", "block")
+}
+function updateRereshInterval(a) {
+    for (var b = 1; b < 99999; b++) window.clearInterval(b);
+    window.setInterval(sendUpdateRequest, 1e3 * a),
+    window.setInterval(function() {
+        addRecentHits(!0, attackerHits),
+        attackerHits.length > 0 && (attackerHits = attackerHits.slice(1))
+    },
+    1e3),
+    window.setInterval(function() {
+        addRecentHits(!1, defenderHits),
+        defenderHits.length > 0 && (defenderHits = defenderHits.slice(1))
+    },
+    1e3)
+}
+$(document).ready(function() {
+    addDomElements(),
+    $(document).ajaxComplete(function(a, b, c) {
+        if ("fight.html" === c.url) {
+            if (document.getElementById("autoHealBox").checked) {
+                var d = parseInt($(b.responseText).find("#healthUpdate").text());
+                if (0 === d) {
+                    var e = parseInt($("#foodLimit2").text()),
+                    f = parseInt($("#giftLimit2").text()),
+                    g = $("#foodQuality").val(),
+                    h = $("#giftQuality").val(),
+                    i = $("#sfoodQ" + g).text().replace("Q" + g, ""),
+                    j = $("#sgiftQ" + h).text().replace("Q" + h, "");
+                    e > 0 && i > 0 ? sendEatRequest() : f > 0 && j > 0 && sendGiftRequest()
+                }
+            }
+            document.getElementById("removeMaskBox").checked && ($("div.newFightWindow").parent().remove(), $("div.pico-overlay").remove())
+        }
+    }),
+    $("#hideTopTenBox").change(function() {
+        toggleTopTen($(this).is(":checked") ? !0 : !1)
+    }),
+    $("#refreshInterval").change(function() {
+        $(this).val()
+    })
+});
